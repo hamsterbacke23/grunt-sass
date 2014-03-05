@@ -11,7 +11,8 @@ module.exports = function (grunt) {
 		var options = this.options({
 			includePaths: [],
 			outputStyle: 'nested',
-			sourceComments: 'none'
+			sourceComments: 'none',
+			printError: false
 		});
 
 		// set the sourceMap path if the sourceComment was 'map', but set source-map was missing
@@ -44,7 +45,18 @@ module.exports = function (grunt) {
 
 					next();
 				},
-				error: grunt.warn,
+				error: function(err) {
+			          grunt.warn(err);
+			
+			          if (options.printError) {
+			            var errorMsg = 'html:before {\nfont-weight: bold;\n';
+			            errorMsg += 'content: "SASS Error: '+ err.replace('\n', ' ') + '";\n';
+			            errorMsg += '}';
+			            grunt.file.write(el.dest, errorMsg);
+			            grunt.log.writeln('Error File ' + chalk.cyan(el.dest) + ' created.');
+			          }
+			
+			        },
 				includePaths: options.includePaths,
 				outputStyle: options.outputStyle,
 				sourceComments: options.sourceComments
